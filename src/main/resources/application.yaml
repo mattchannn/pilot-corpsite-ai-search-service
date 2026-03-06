@@ -1,0 +1,3 @@
+azure:
+  ai-search:
+    instance: https://pilot-plus-ai-search-dev.search.windows.net
