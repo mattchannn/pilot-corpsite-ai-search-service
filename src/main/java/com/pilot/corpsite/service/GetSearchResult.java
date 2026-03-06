@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class GetSearchResult {
@@ -23,7 +24,7 @@ public class GetSearchResult {
 
     private static final String[] select = {"id", "parent_id", "chunk", "title", "language"};
 
-    public List<String> search(String query) {
+    public List<SearchDocument> search(String query) {
         SearchIndexClient searchIndexClient = new SearchIndexClientBuilder()
                 .endpoint(endpoint)
                 .credential(new AzureKeyCredential(API_KEY))
@@ -37,23 +38,27 @@ public class GetSearchResult {
         SearchOptions searchOptions = new SearchOptions()
                 .setIncludeTotalCount(true)
                 .setSelect(select)
-                .setVectorSearchOptions(vectorSearchOptions)
+                // .setVectorSearchOptions(vectorSearchOptions)
                 .setTop(200);
 
         SearchPagedIterable result = searchIndexClient.getSearchClient(INDEX_NAME)
                 .search(query, searchOptions, Context.NONE);
 
-        String luckyParentId = result.stream()
-                .findFirst()
-                .get()
-                .getDocument(SearchDocument.class)
-                .getParentId();
-
         return result.stream()
-                .filter(x -> x.getDocument(SearchDocument.class)
-                        .getParentId()
-                        .equals(luckyParentId))
-                .map(r -> r.getDocument(SearchDocument.class).getChunk())
-                .toList();
+                .map(r -> r.getDocument(SearchDocument.class))
+                .collect(Collectors.groupingBy(SearchDocument::getParentId))
+                .entrySet().stream()
+                .map(entry -> {
+                    List<SearchDocument> documents = entry.getValue();
+                    SearchDocument aggregated = new SearchDocument();
+                    aggregated.setId(null);
+                    aggregated.setParentId(entry.getKey());
+                    aggregated.setChunk(documents.stream()
+                            .map(SearchDocument::getChunk)
+                            .collect(Collectors.joining(" ")));
+                    aggregated.setExternalLink(documents.get(0).getExternalLink());
+                    return aggregated;
+                })
+                .collect(Collectors.toList());
     }
 }

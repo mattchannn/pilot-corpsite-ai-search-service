@@ -1,5 +1,6 @@
 package com.pilot.corpsite.controller;
 
+import com.pilot.corpsite.model.api.SearchDocument;
 import com.pilot.corpsite.model.api.request.SearchRequest;
 import com.pilot.corpsite.model.api.response.SearchResult;
 import com.pilot.corpsite.service.GenerateAISummary;
@@ -26,8 +27,8 @@ public class SearchController {
     @PostMapping(value = "/search", produces = "application/json")
     public ResponseEntity<SearchResult> search(@RequestBody SearchRequest request) {
         SearchResult resp = new SearchResult();
-        List<String> chunks = this.getSearchResult.search(request.getQuery());
-        String summary = this.generateAISummary.execute(request.getQuery(), chunks);
+        List<SearchDocument> references = this.getSearchResult.search(request.getQuery());
+        String summary = this.generateAISummary.execute(request.getQuery(), references);
         resp.setSummary(summary);
         return new ResponseEntity<>(resp, HttpStatus.OK);
     }

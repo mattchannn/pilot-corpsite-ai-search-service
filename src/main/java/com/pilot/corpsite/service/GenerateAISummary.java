@@ -1,5 +1,7 @@
 package com.pilot.corpsite.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.pilot.corpsite.model.api.SearchDocument;
 import com.pilot.corpsite.model.api.request.DifyWorkflowRequest;
 import com.pilot.corpsite.model.api.response.DifyWorkflowResponse;
 import lombok.extern.log4j.Log4j2;
@@ -26,14 +28,13 @@ public class GenerateAISummary {
                 .build();
     }
 
-    public String execute(String query, List<String> chunks) {
+    public String execute(String query, List<SearchDocument> references) {
         try {
-            // Join chunks into a single reference string
-            String reference = String.join("\n", chunks);
+            String referencesInJsonStr = new ObjectMapper().writeValueAsString(references);
 
             // Build the request
             DifyWorkflowRequest request = DifyWorkflowRequest.builder()
-                    .inputs(query, reference)
+                    .inputs(query, referencesInJsonStr)
                     .responseMode("blocking")
                     .user("fake-user-123")
                     .build();
@@ -58,3 +59,5 @@ public class GenerateAISummary {
         }
     }
 }
+
+

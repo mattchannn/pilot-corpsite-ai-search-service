@@ -12,6 +12,9 @@ public class SearchDocument {
     @JsonProperty("parent_id")
     private String parentId;
 
+    @JsonProperty("external_link")
+    private String externalLink;
+
     private String chunk;
 
     private String language;
