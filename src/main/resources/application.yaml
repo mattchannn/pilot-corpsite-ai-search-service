@@ -1,3 +1,8 @@
+spring:
+  http:
+    clients:
+      connect-timeout: 15s
+      read-timeout: 15s
 azure:
   ai-search:
     instance: https://pilot-plus-ai-search-dev.search.windows.net
