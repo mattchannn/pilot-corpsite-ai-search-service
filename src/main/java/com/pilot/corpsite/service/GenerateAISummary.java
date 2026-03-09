@@ -5,6 +5,7 @@ import com.pilot.corpsite.model.api.SearchDocument;
 import com.pilot.corpsite.model.api.request.DifyWorkflowRequest;
 import com.pilot.corpsite.model.api.response.DifyWorkflowResponse;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
@@ -14,18 +15,10 @@ import java.util.List;
 @Log4j2
 @Service
 public class GenerateAISummary {
-
-    private static final String DIFY_API_URL = "https://api.dify.ai/v1/workflows/run";
-    private static final String DIFY_API_KEY = "Bearer ";
-
     private final RestClient restClient;
 
-    public GenerateAISummary() {
-        this.restClient = RestClient.builder()
-                .baseUrl(DIFY_API_URL)
-                .defaultHeader("Authorization", DIFY_API_KEY)
-                .defaultHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-                .build();
+    public GenerateAISummary(@Qualifier("difyRestClient") RestClient restClient) {
+        this.restClient = restClient;
     }
 
     public String execute(String query, List<SearchDocument> references) {
