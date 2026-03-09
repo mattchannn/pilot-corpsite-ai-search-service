@@ -8,7 +8,6 @@ import org.springframework.web.client.RestClient;
 
 @Configuration
 public class RestClientConfig {
-
     @Bean
     @Qualifier("difyRestClient")
     public RestClient difyRestClient(RestClient.Builder builder) {
