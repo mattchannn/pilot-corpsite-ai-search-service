@@ -39,7 +39,8 @@ public class GenerateAISummary {
                     .accept(MediaType.TEXT_EVENT_STREAM)
                     .bodyValue(request)
                     .retrieve()
-                    .bodyToFlux(String.class);
+                    .bodyToFlux(String.class)
+                    .filter(line -> line.contains("\"event\":\"message\""));
         } catch (Exception e) {
             log.error("Error executing Dify workflow", e);
             return Flux.error(e);

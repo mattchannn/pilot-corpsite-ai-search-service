@@ -4,6 +4,7 @@ import com.pilot.corpsite.model.api.SearchDocument;
 import com.pilot.corpsite.model.api.request.SearchRequest;
 import com.pilot.corpsite.service.GenerateAISummary;
 import com.pilot.corpsite.service.GetSearchResult;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -16,6 +17,7 @@ import java.util.List;
 
 @RestController
 @CrossOrigin(origins = "*", allowedHeaders = "*")
+@Log4j2
 public class SearchController {
     private final GetSearchResult getSearchResult;
 
@@ -33,10 +35,13 @@ public class SearchController {
 
         try {
             return this.generateAISummary.execute(request.getQuery(), references)
-                    .map(chunk -> ServerSentEvent.<String>builder()
-                            .event("data")
-                            .data(chunk)
-                            .build());
+                    .map(chunk -> {
+                        log.info("Emitting chunk: {}", chunk);
+                        return ServerSentEvent.<String>builder()
+                                .event("data")
+                                .data(chunk)
+                                .build();
+                    });
         } catch (Exception e) {
             return Flux.just(ServerSentEvent.<String>builder()
                     .event("error")
