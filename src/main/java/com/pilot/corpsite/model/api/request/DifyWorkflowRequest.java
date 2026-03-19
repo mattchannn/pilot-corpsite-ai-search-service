@@ -11,15 +11,16 @@ import lombok.Setter;
 public class DifyWorkflowRequest {
     private Inputs inputs;
 
+    private String query;
+
     @JsonProperty("response_mode")
     private String responseMode;
 
     private String user;
 
     public static class DifyWorkflowRequestBuilder {
-        public DifyWorkflowRequestBuilder inputs(String query, String reference) {
+        public DifyWorkflowRequestBuilder inputs(String reference) {
             this.inputs = new Inputs();
-            this.inputs.setQuery(query);
             this.inputs.setReference(reference);
             return this;
         }
@@ -29,6 +30,5 @@ public class DifyWorkflowRequest {
 @Getter
 @Setter
 class Inputs {
-    private String query;
     private String reference;
 }

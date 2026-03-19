@@ -3,52 +3,46 @@ package com.pilot.corpsite.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pilot.corpsite.model.api.SearchDocument;
 import com.pilot.corpsite.model.api.request.DifyWorkflowRequest;
-import com.pilot.corpsite.model.api.response.DifyWorkflowResponse;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestClient;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Flux;
 
 import java.util.List;
 
 @Log4j2
 @Service
 public class GenerateAISummary {
-    private final RestClient restClient;
+    private final WebClient webClient;
 
-    public GenerateAISummary(@Qualifier("difyRestClient") RestClient restClient) {
-        this.restClient = restClient;
+    public GenerateAISummary(@Qualifier("difyWebClient") WebClient webClient) {
+        this.webClient = webClient;
     }
 
-    public String execute(String query, List<SearchDocument> references) {
+    public Flux<String> execute(String query, List<SearchDocument> references) {
         try {
             String referencesInJsonStr = new ObjectMapper().writeValueAsString(references);
 
             // Build the request
             DifyWorkflowRequest request = DifyWorkflowRequest.builder()
-                    .inputs(query, referencesInJsonStr)
-                    .responseMode("blocking")
+                    .inputs(referencesInJsonStr)
+                    .query(query)
+                    .responseMode("streaming")
                     .user("fake-user-123")
                     .build();
 
             // Execute the workflow
-            DifyWorkflowResponse response = restClient.post()
+            return webClient.post()
                     .contentType(MediaType.APPLICATION_JSON)
-                    .body(request)
+                    .accept(MediaType.TEXT_EVENT_STREAM)
+                    .bodyValue(request)
                     .retrieve()
-                    .body(DifyWorkflowResponse.class);
-
-            if (response != null && response.getData() != null) {
-                return response.getSummary();
-            } else {
-                log.warn("No data received from Dify workflow");
-                return "";
-            }
-
+                    .bodyToFlux(String.class);
         } catch (Exception e) {
             log.error("Error executing Dify workflow", e);
-            return "";
+            return Flux.error(e);
         }
     }
 }

@@ -7,3 +7,9 @@ This is an AI search service to how we search things on Corporate Website via Az
 ### Prerequisites
 
 Java version: 21
+
+## 💡 How to publish the service on Fly.io?
+
+To launch a new app on Fly.io, you can run `fly launch`
+
+If the app is already there (same app name exists), you should run `fly deploy` instead.
