@@ -12,7 +12,7 @@ public class WebClientConfig {
     @Qualifier("difyWebClient")
     public WebClient difyWebClient(WebClient.Builder builder) {
         return builder
-                .baseUrl("https://api.dify.ai/v1/workflows/run")
+                .baseUrl("https://api.dify.ai/v1/chat-messages")
                 .defaultHeader("Authorization", "Bearer ")
                 .defaultHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
                 .build();
