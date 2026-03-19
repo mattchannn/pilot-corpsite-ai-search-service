@@ -6,3 +6,6 @@ spring:
 azure:
   ai-search:
     instance: https://pilot-plus-ai-search-dev.search.windows.net
+    apiKey: ${AZURE_AI_SEARCH_API_KEY}
+dify:
+  apiKey: ${DIFY_API_KEY}

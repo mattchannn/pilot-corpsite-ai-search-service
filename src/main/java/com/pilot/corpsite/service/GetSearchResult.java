@@ -18,6 +18,9 @@ public class GetSearchResult {
     @Value("${azure.ai-search.instance}")
     private String endpoint;
 
+    @Value("${azure.ai-search.apiKey}")
+    private String apiKey;
+
     private static final String INDEX_NAME = "corpsite-search-indexes";
 
     private static final String API_KEY = "";
@@ -27,7 +30,7 @@ public class GetSearchResult {
     public List<SearchDocument> search(String query) {
         SearchIndexClient searchIndexClient = new SearchIndexClientBuilder()
                 .endpoint(endpoint)
-                .credential(new AzureKeyCredential(API_KEY))
+                .credential(new AzureKeyCredential(apiKey))
                 .buildClient();
 
         VectorizableTextQuery vectorizableTextQuery = new VectorizableTextQuery(query)
