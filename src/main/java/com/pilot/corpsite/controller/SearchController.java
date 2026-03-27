@@ -28,7 +28,7 @@ public class SearchController {
         this.generateAISummary = generateAISummary;
     }
 
-    @PostMapping(value = "/search", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @PostMapping(value = "/ai-summary", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<ServerSentEvent<String>> search(@RequestBody SearchRequest request) {
         // Get search results first
         List<SearchDocument> references = this.getSearchResult.search(request.getQuery());
