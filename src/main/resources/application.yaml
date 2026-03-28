@@ -6,6 +6,7 @@ spring:
 azure:
   ai-search:
     instance: https://pilot-plus-ai-search-dev.search.windows.net
-    apiKey: ${AZURE_AI_SEARCH_API_KEY}
+    apiKey: ${AZURE_AI_SEARCH_API_KEY:}
+    isVectorSearchEnabled: ${IS_VECTOR_SEARCH_ENABLED:false}
 dify:
-  apiKey: ${DIFY_API_KEY}
+  apiKey: ${DIFY_API_KEY:}

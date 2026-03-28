@@ -4,28 +4,31 @@ import com.azure.core.credential.AzureKeyCredential;
 import com.azure.core.util.Context;
 import com.azure.search.documents.indexes.SearchIndexClient;
 import com.azure.search.documents.indexes.SearchIndexClientBuilder;
-import com.azure.search.documents.models.*;
+import com.azure.search.documents.models.SearchOptions;
+import com.azure.search.documents.models.VectorSearchOptions;
+import com.azure.search.documents.models.VectorizableTextQuery;
 import com.azure.search.documents.util.SearchPagedIterable;
 import com.pilot.corpsite.model.api.SearchDocument;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-public class GetSearchResult {
+public class GetSearchResults {
     @Value("${azure.ai-search.instance}")
     private String endpoint;
 
     @Value("${azure.ai-search.apiKey}")
     private String apiKey;
 
+    @Value("${azure.ai-search.isVectorSearchEnabled}")
+    private Boolean useVectorSearch;
+
     private static final String INDEX_NAME = "corpsite-search-indexes";
 
-    private static final String API_KEY = "";
-
-    private static final String[] select = {"id", "parent_id", "chunk", "title", "language"};
+    private static final String[] select = {"id", "parent_id", "title", "chunk", "external_link", "thumbnail"};
 
     public List<SearchDocument> search(String query) {
         SearchIndexClient searchIndexClient = new SearchIndexClientBuilder()
@@ -38,30 +41,29 @@ public class GetSearchResult {
                 .setKNearestNeighborsCount(5);
         VectorSearchOptions vectorSearchOptions = new VectorSearchOptions()
                 .setQueries(vectorizableTextQuery);
+
         SearchOptions searchOptions = new SearchOptions()
                 .setIncludeTotalCount(true)
                 .setSelect(select)
-                // .setVectorSearchOptions(vectorSearchOptions)
                 .setTop(200);
+
+        if (useVectorSearch) {
+            searchOptions.setVectorSearchOptions(vectorSearchOptions);
+        }
 
         SearchPagedIterable result = searchIndexClient.getSearchClient(INDEX_NAME)
                 .search(query, searchOptions, Context.NONE);
 
         return result.stream()
                 .map(r -> r.getDocument(SearchDocument.class))
-                .collect(Collectors.groupingBy(SearchDocument::getParentId))
-                .entrySet().stream()
-                .map(entry -> {
-                    List<SearchDocument> documents = entry.getValue();
-                    SearchDocument aggregated = new SearchDocument();
-                    aggregated.setId(null);
-                    aggregated.setParentId(entry.getKey());
-                    aggregated.setChunk(documents.stream()
-                            .map(SearchDocument::getChunk)
-                            .collect(Collectors.joining(" ")));
-                    aggregated.setExternalLink(documents.get(0).getExternalLink());
-                    return aggregated;
-                })
-                .collect(Collectors.toList());
+                .collect(Collectors.collectingAndThen(
+                        Collectors.toMap(
+                                SearchDocument::getParentId, // Key
+                                doc -> doc, // Value
+                                (existing, replacement) -> existing, // mergeFunction to handle duplication
+                                LinkedHashMap::new // Preserve search ranking order
+                        ),
+                        map -> new ArrayList<>(map.values())
+                ));
     }
 }
