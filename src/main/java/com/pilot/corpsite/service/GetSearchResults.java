@@ -28,7 +28,7 @@ public class GetSearchResults {
 
     private static final String INDEX_NAME = "corpsite-search-indexes";
 
-    private static final String[] select = {"id", "parent_id", "title", "chunk", "external_link", "thumbnail", "content"};
+    private static final String[] select = {"id", "parent_id", "title", "chunk", "external_link", "thumbnail"};
 
     public List<SearchDocument> search(String query) {
         SearchIndexClient searchIndexClient = new SearchIndexClientBuilder()
