@@ -20,4 +20,6 @@ public class SearchDocument {
     private String chunk;
 
     private String thumbnail;
+
+    private String content;
 }
