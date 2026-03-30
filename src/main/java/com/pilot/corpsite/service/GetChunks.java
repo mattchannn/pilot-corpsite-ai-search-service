@@ -43,6 +43,7 @@ public class GetChunks {
         SearchOptions searchOptions = new SearchOptions()
                 .setIncludeTotalCount(true)
                 .setSelect(select)
+                .setOrderBy("score_override desc, search.score() desc")
                 .setTop(200);
 
         if (useVectorSearch) {
@@ -53,6 +54,7 @@ public class GetChunks {
                 .search(query, searchOptions, Context.NONE);
 
         return result.stream()
+                .filter(r -> r.getScore() >= 0.75)
                 .map(r -> r.getDocument(SearchDocument.class))
                 .collect(Collectors.groupingBy(SearchDocument::getParentId))
                 .entrySet().stream()

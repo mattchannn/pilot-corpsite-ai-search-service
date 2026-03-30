@@ -56,6 +56,7 @@ public class GetSearchResults {
                 .search(query, searchOptions, Context.NONE);
 
         return result.stream()
+                .filter(r -> r.getScore() >= 0.75)
                 .map(r -> r.getDocument(SearchDocument.class))
                 .collect(Collectors.collectingAndThen(
                         Collectors.toMap(
