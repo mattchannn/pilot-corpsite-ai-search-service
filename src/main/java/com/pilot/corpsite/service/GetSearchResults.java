@@ -45,6 +45,7 @@ public class GetSearchResults {
         SearchOptions searchOptions = new SearchOptions()
                 .setIncludeTotalCount(true)
                 .setSelect(select)
+                .setOrderBy("score_override desc, search.score() desc")
                 .setTop(200);
 
         if (useVectorSearch) {
