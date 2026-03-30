@@ -3,6 +3,8 @@ spring:
     clients:
       connect-timeout: 15s
       read-timeout: 15s
+    codecs:
+      max-in-memory-size: "2MB"
 azure:
   ai-search:
     instance: https://pilot-plus-ai-search-dev.search.windows.net
